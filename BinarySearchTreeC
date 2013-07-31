@@ -1,0 +1,262 @@
+/*          Binary Search Tree (Completed)  */
+#include<stdio.h>
+#include<conio.h>
+typedef struct tree
+{
+        int key;
+        struct tree *left,*right,*parent;
+}TREE;
+TREE *root=NULL,*temp=NULL;
+TREE *curr,*x,*y=NULL;
+int count;
+tree_insert(int no)
+{
+      TREE *ptem,*x,*y;
+      ptem=(TREE *)malloc(sizeof(TREE));
+      ptem->key=no;
+      ptem->left=ptem->right=ptem->parent=NULL;
+      if(!root)
+          root=ptem;
+      else
+      {
+          x=root;
+          y=NULL;
+          while(x)
+          {
+               y=x;   
+               if(x->key>no)
+                    x=x->left;
+               else
+                   x=x->right;
+          }          
+          ptem->parent=y;
+          if(no<y->key)
+               y->left=ptem;
+          else
+               y->right=ptem;
+      }
+      
+}
+tree_inorder(TREE *x)
+{
+      if(x)
+      {
+           tree_inorder(x->left);
+           printf("%d -> ",x->key);
+           tree_inorder(x->right);
+      }
+}
+TREE *tree_min(TREE *x)
+{
+     while(x->left)
+          x=x->left;
+     return x;   
+}
+TREE *tree_max(TREE *x)
+{
+     while(x->right)
+        x=x->right;
+     return x;
+}
+TREE *tree_search(TREE *x,int no)
+{
+     while(x!=NULL && no!=x->key)
+     {
+         if(x->key>no)
+             x=x->left;
+         else
+             x=x->right;
+     }
+     return x;
+}
+TREE *tree_successor(TREE *x)
+{
+     if(x->right)
+          return tree_min(x->right);
+     y=x->parent;
+     while(y!=NULL && x==y->right)
+     {
+          x=y;
+          y=y->parent;
+     }
+     return y;
+}
+tree_delete(TREE *z)
+{
+     if(!z)            
+     {
+          printf("\nNo Elements in this Tree........");
+          return;
+     }
+     if(z->left==NULL)
+          transplant(z,z->right);
+     else if(z->right==NULL)
+          transplant(z,z->left);
+     else
+     {    
+          y=tree_min(z->right);
+          if(y->parent!=z)
+          {
+                 transplant(y,y->right);
+                 y->right=z->right;
+                 y->right->parent=y;
+          }
+          transplant(z,y);
+          y->left=z->left;
+          y->left->parent=y;
+     }
+     printf("\nSuccesfully Deleted : %d \n",z->key);
+}
+transplant(TREE *u,TREE *v)
+{
+     if(u->parent==NULL)
+          root=v;
+     else if(u==u->parent->left)
+          u->parent->left=v;
+     else
+          u->parent->right=v;
+     if(v)
+         v->parent=u->parent;
+}
+mirror(TREE *x)
+{
+     if(x)
+      {           
+           temp=x->left;
+           x->left=x->right;
+           x->right=temp;    
+           mirror(x->left);
+//           printf("%d -> ",x->key);
+           mirror(x->right);
+      }
+}
+/*
+int minDepth(TREE *x)
+{
+     if(x)
+          return 0;
+     else
+          return 1+(minDepth(x->left)>minDepth(x->right));
+}
+*/
+int maxDepth(struct tree* node) 
+{
+   if (node==NULL) 
+       return 0;
+   else
+   {
+       /* compute the depth of each subtree */
+       int lDepth = maxDepth(node->left);
+       int rDepth = maxDepth(node->right);
+ 
+       /* use the larger one */
+       if (lDepth > rDepth) 
+           return(lDepth+1);
+       else return(rDepth+1);
+   }
+} 
+int minDepth(struct tree* node) 
+{
+   if (node==NULL) 
+       return 0;
+   else
+   {
+       /* compute the depth of each subtree */
+       int lDepth = minDepth(node->left);
+       int rDepth = minDepth(node->right);
+ 
+       /* use the smaller one */
+       if (lDepth > rDepth) 
+           return(lDepth+1);
+       else return(rDepth+1);
+   }
+} 
+int isBalanced(TREE *root){
+ return (maxDepth(root) - minDepth(root) <= 1);
+}
+int size(struct tree* node) 
+{  
+  if (node==NULL) 
+    return 0;
+  else    
+    return(size(node->left) + 1 + size(node->right));  
+}
+
+tree_size(TREE *x)
+{
+   
+      if(x)
+      {
+           
+           tree_size(x->left);
+                 count++;      
+           //printf("%d -> ",x->key);
+           tree_size(x->right);
+
+      }
+      return count;
+}
+main()
+{
+      int no;
+      printf("Enter Value until 0\n");
+      scanf("%d",&no);
+      while(no)
+      {
+          tree_insert(no);     
+          scanf("%d",&no);
+
+      }
+
+
+      printf("\nBefore Mirror Inorder\n");
+      tree_inorder(root);
+      printf("\nMax Depth is %d\n",maxDepth(root));
+      printf("\nMin Depth is %d\n",minDepth(root));
+      printf("\nSize is %d\n",size(root));
+      if(isBalanced(root))
+            puts("\nBalanced Tree\n\n");
+      else
+            puts("\nNot a Balanced Tree\n\n");
+      printf("\nTree Size is %d\n",tree_size(root));
+      /*
+      mirror(root);
+
+      printf("\nAfter Mirror Inorder\n");
+      tree_inorder(root);
+      * /
+      
+      printf("\nMinimum : %d \n",tree_min(root)->key);
+      printf("\nMaximum : %d \n",tree_max(root)->key);
+      
+      
+      printf("Enter Value To find until 0\n");
+      scanf("%d",&no);
+      while(no)
+      {
+          if(tree_search(root,no)==NULL)     
+               puts("\nNo Such Element Avails Here\n");
+          else
+               puts("\nValue Found\n");
+          scanf("%d",&no);
+
+      }
+      printf("\nTree Successor root : %d \n",tree_successor(root)->key);
+      printf("\nTree Successor root->left : %d \n",tree_successor(root->left)->key);
+      printf("\nTree Successor root->right : %d \n",tree_successor(root->right)->key);
+/*      printf("\nTree Successor Min : %d \n",tree_successor(tree_min(root))->key);
+      printf("\nTree Successor Max : %d \n",tree_successor(tree_max(root))->key);
+* /      
+      while(1)
+      {
+          printf("\nRoot : %d \n",root->key);    
+          tree_delete(root);
+          tree_inorder(root);
+          getch();
+      }
+      */
+      printf("\nSuccess");
+      
+      getch();
+
+}
